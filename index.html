@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</title>
+    <!-- مكتبة الأيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- خطوط جوجل العربية (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #1b4d3e;
+            --light-green: #2e7d32;
+            --accent-gold: #c5a059;
+            --light-gold: #f4ecdf;
+            --bg-light: #f9fbf9;
+            --text-dark: #333333;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* شريط التنقل العلوي */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.2rem;
+            color: var(--accent-gold);
+        }
+
+        .logo-text h1 {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            font-weight: 900;
+        }
+
+        .logo-text span {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        .cta-btn {
+            background-color: var(--accent-gold);
+            color: var(--white);
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: background 0.3s;
+        }
+
+        .cta-btn:hover {
+            background-color: #b08d46;
+        }
+
+        /* قسم الواجهة الرئيسية (Hero Section) */
+        .hero {
+            background: linear-gradient(135deg, rgba(27, 77, 62, 0.9), rgba(46, 125, 50, 0.85)), url('https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=1200&q=80') center/cover;
+            color: var(--white);
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-content h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--light-gold);
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-main {
+            background-color: var(--accent-gold);
+            color: var(--white);
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-sec {
+            background-color: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* قسم الخدمات والأقسام */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h3 {
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: #666;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid var(--accent-gold);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .card i {
+            font-size: 3rem;
+            color: var(--light-green);
+            margin-bottom: 20px;
+        }
+
+        .card h4 {
+            font-size: 1.3rem;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* قسم الإحصائيات والأخبار */
+        .stats-section {
+            background-color: var(--light-gold);
+            padding: 60px 20px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            color: var(--primary-green);
+            margin-bottom: 5px;
+        }
+
+        .stat-item p {
+            color: #555;
+            font-weight: 600;
+        }
+
+        /* التذييل (Footer) */
+        footer {
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 40px 20px 20px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 30px;
+        }
+
+        .footer-logo h2 {
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شريط التنقل -->
+    <header>
+        <div class="navbar">
+            <div class="logo-area">
+                <i class="fa-solid fa-oil-well logo-icon"></i>
+                <div class="logo-text">
+                    <h1>جمعية نماء العطاوية</h1>
+                    <span>لأصحاب وحدات إنتاج زيت الزيتون</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#">الرئيسية</a></li>
+                <li><a href="#services">خدماتنا</a></li>
+                <li><a href="#about">عن الجمعية</a></li>
+                <li><a href="#contact">اتصل بنا</a></li>
+            </ul>
+            <a href="#contact" class="cta-btn">انضم إلينا</a>
+        </div>
+    </header>
+
+    <!-- الواجهة الرئيسية -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>بوابة أصحاب وحدات إنتاج زيت الزيتون بالعطاوية</h2>
+            <p>منصة رقمية متكاملة لتعزيز التعاون، تنظيم القطاع، وتطوير جودة الإنتاج وتثمين سلسلة قيمة الزيتون بالمنطقة.</p>
+            <div class="hero-buttons">
+                <a href="#services" class="btn-main">استكشف الخدمات</a>
+                <a href="#contact" class="btn-sec">تواصل معنا</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- الأقسام والخدمات -->
+    <div class="container" id="services">
+        <div class="section-title">
+            <h3>خدمات المنصة والأهداف</h3>
+            <p>نعمل على توفير بيئة مهنية متطورة لخدمة المعاصر والوحدات الإنتاجية</p>
+        </div>
+        <div class="grid-cards">
+            <div class="card">
+                <i class="fa-solid fa-industry"></i>
+                <h4>دليل الوحدات والمعاصر</h4>
+                <p>قاعدة بيانات شاملة لتعريف أصحاب المعاصر وتسهيل التواصل فيما بينهم ومع الشركاء.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-handshake"></i>
+                <h4>التنسيق المهني والتأطير</h4>
+                <p>مواكبة القوانين التنظيمية البيئية والصحية وتطوير معايير الجودة للإنتاج المحلي.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h4>تثمين التسويق والإنتاج</h4>
+                <p>مشاركة المستجدات الزراعية، أسعار السوق، وتبادل الخبرات لرفع كفاءة الإنتاج.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- قسم الإحصائيات -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>+40</h3>
+                <p>وحدة إنتاج ومعصرة منخرطة</p>
+            </div>
+            <div class="stat-item">
+                <h3>إقليم قلعة السراغنة</h3>
+                <p>نطاق النفوذ والنشاط</p>
+            </div>
+            <div class="stat-item">
+                <h3>100%</h3>
+                <p>دعم وتنسيق مهني مستدام</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- التذييل -->
+    <footer>
+        <div class="footer-content" id="contact">
+            <div class="footer-logo">
+                <h2>جمعية نماء العطاوية</h2>
+                <p>لأصحاب وحدات إنتاج زيت الزيتون - العطاوية، المغرب</p>
+            </div>
+            <div>
+                <p><i class="fa-solid fa-location-dot"></i> العطاوية، إقليم قلعة السراغنة</p>
+                <p><i class="fa-solid fa-envelope"></i> contact@namaa-attaouia.ma</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر محفوظة © 2026 - جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</p>
+        </div>
+    </footer>
+
+</body>
+</html>
