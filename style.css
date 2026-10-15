@@ -8,6 +8,7 @@
     --white: #ffffff;
     --whatsapp-color: #25d366;
     --danger-red: #d32f2f;
+    --warning-orange: #f57f17;
 }
 
 * {
@@ -24,7 +25,6 @@ body {
     line-height: 1.6;
 }
 
-/* Header & Navbar */
 header {
     background: var(--white);
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -72,15 +72,16 @@ header {
 .nav-links {
     display: flex;
     list-style: none;
-    gap: 18px;
+    gap: 15px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .nav-links a {
     text-decoration: none;
     color: var(--text-dark);
     font-weight: 600;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     transition: color 0.3s;
 }
 
@@ -102,7 +103,6 @@ header {
     cursor: pointer;
 }
 
-/* Containers & Sections */
 .container {
     max-width: 1200px;
     margin: 40px auto;
@@ -124,12 +124,11 @@ header {
     color: #666;
 }
 
-/* Forms */
 .form-box {
     max-width: 650px;
     margin: 0 auto;
     background: var(--white);
-    padding: 45px;
+    padding: 40px;
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     border-top: 5px solid var(--primary-green);
@@ -178,7 +177,16 @@ header {
     background-color: var(--light-green);
 }
 
-/* Footer */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+.badge-success { background: #e8f5e9; color: var(--light-green); }
+.badge-warning { background: #fffde7; color: var(--warning-orange); }
+.badge-danger { background: #ffebee; color: var(--danger-red); }
+
 footer {
     background-color: var(--primary-green);
     color: var(--white);
@@ -211,7 +219,6 @@ footer {
     color: #aaa;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .nav-links {
         display: none;
