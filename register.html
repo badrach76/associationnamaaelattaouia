@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - جمعية نماء العطاوية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <div class="logo-area">
+                <img src="1000096843.jpg" alt="شعار جمعية نماء العطاوية" class="logo-img">
+                <div class="logo-text">
+                    <h1>جمعية نماء العطاوية</h1>
+                    <span>لأصحاب وحدات إنتاج زيت الزيتون</span>
+                </div>
+            </div>
+            <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="services.html">الخدمات</a></li>
+                <li><a href="membership.html">طلب الانخراط</a></li>
+                <li><a href="register.html" class="active">إنشاء حساب</a></li>
+                <li><a href="admin-login.html" class="admin-nav-btn"><i class="fa-solid fa-lock"></i> إدارة المنصة</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="section-title">
+            <h3>إنشاء حساب مهني داخل المنصة</h3>
+            <p>أنشئ حسابك الخاص لتتبع خدمات المنصة والاطلاع على المستجدات والتعاميم</p>
+        </div>
+        <div class="form-box">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>البريد الإلكتروني أو اسم المستخدم:</label>
+                    <input type="email" required placeholder="name@example.com" style="direction: ltr; text-align: right;">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور:</label>
+                    <input type="password" required placeholder="********">
+                </div>
+                <div class="form-group">
+                    <label>تأكيد كلمة المرور:</label>
+                    <input type="password" required placeholder="********">
+                </div>
+                <button type="submit" class="submit-btn">تسجيل الحساب الجديد</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</h2>
+                <p>العطاوية، إقليم قلعة السراغنة، المملكة المغربية</p>
+            </div>
+            <div>
+                <p><i class="fa-solid fa-location-dot"></i> العطاوية، قلعة السراغنة</p>
+                <p><i class="fa-solid fa-envelope"></i> contact@namaa-attaouia.ma</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر محفوظة © 2026 - جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
