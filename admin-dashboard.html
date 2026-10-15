@@ -7,103 +7,106 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') {
-            alert('غير مسموح بالدخول، يرجى تسجيل الدخول من صفحة المشرفين.');
-            window.location.href = 'admin-login.html';
-        }
-    </script>
+    <script>if (sessionStorage.getItem('isAdmin') !== 'true') { alert('غير مسموح بالدخول.'); window.location.href = 'admin-login.html'; }</script>
 </head>
 <body>
-
     <header>
         <div class="navbar">
             <div class="logo-area">
                 <img src="1000096843.jpg" alt="شعار جمعية نماء العطاوية" class="logo-img">
-                <div class="logo-text">
-                    <h1>لوحة تحكم المشرفين</h1>
-                    <span>جمعية نماء العطاوية</span>
-                </div>
+                <div class="logo-text"><h1>لوحة تحكم المشرفين</h1><span>جمعية نماء العطاوية</span></div>
             </div>
-            <div>
-                <button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='index.html';" style="background: var(--danger-red); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer;">
-                    <i class="fa-solid fa-right-from-bracket"></i> خروج
-                </button>
-            </div>
+            <div><button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='index.html';" style="background: var(--danger-red); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i> خروج</button></div>
         </div>
     </header>
 
     <div class="container">
         <div class="section-title">
-            <h3>إدارة طلبات الانخراط وتسيير الأنشطة</h3>
-            <p>قبول أو رفض أو وضع الطلبات في طور المعالجة وتوليد رسائل الواتساب التلقائية للمنخرطين</p>
+            <h3>إدارة المنصة، المنخرطين، الواجبات، الأنشطة والتكوينات</h3>
+            <p>تدبير شامل لجميع وحدات المعاصر والاتصال الجماعي بالمنخرطين</p>
         </div>
 
-        <!-- قسم إضافة نشاط جديد للعموم -->
-        <div class="form-box" style="margin-bottom: 40px; max-width: 100%;">
-            <h4 style="color: var(--primary-green); margin-bottom: 15px;"><i class="fa-solid fa-plus-circle"></i> نشر نشاط جديد (منجز أو مستقبلي)</h4>
-            <form onsubmit="handleAddActivity(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: end;">
-                <div class="form-group" style="margin:0;">
-                    <label>عنوان النشاط:</label>
-                    <input type="text" id="act-title" required placeholder="عنوان النشاط">
+        <!-- قسم إرسال رسائل جماعية في مجموعة واتساب المهنية -->
+        <div class="admin-action-box" style="border-top-color: #25d366;">
+            <h4 style="color: var(--primary-green); margin-bottom: 12px;"><i class="fa-brands fa-whatsapp" style="color:#25d366;"></i> إرسال إشعار جماعي لمجموعة الواتساب المهنية</h4>
+            <form onsubmit="handleSendGroupWhatsApp(event)">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <textarea id="group-wa-msg" rows="2" required placeholder="اكتب نص الإشعار الجماعي الموجه لأصحاب المعاصر والوحدات..."></textarea>
                 </div>
-                <div class="form-group" style="margin:0;">
-                    <label>التاريخ:</label>
-                    <input type="date" id="act-date" required>
-                </div>
-                <div class="form-group" style="margin:0;">
-                    <label>نوع النشاط:</label>
-                    <select id="act-type" required>
-                        <option value="منجز">نشاط منجز</option>
-                        <option value="مستقبلي">نشاط مستقبلي</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin:0; grid-column: 1 / -1;">
-                    <label>الوصف:</label>
-                    <textarea id="act-desc" rows="2" required placeholder="تفاصيل النشاط..."></textarea>
-                </div>
+                <button type="submit" class="submit-btn" style="background-color: #25d366; padding: 10px; width: auto;"><i class="fa-brands fa-whatsapp"></i> إرسال الإشعار لمجموعة الواتساب</button>
+            </form>
+        </div>
+
+        <!-- نموذج تسجيل منخرط قديم مباشرة -->
+        <div class="admin-action-box">
+            <h4 style="color: var(--primary-green); margin-bottom: 15px;"><i class="fa-solid fa-user-plus"></i> تسجيل منخرط قديم (له سابقة انخراط ولم يسجل بالمنصة)</h4>
+            <form onsubmit="handleAddOldMember(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: end;">
+                <div class="form-group" style="margin:0;"><label>الاسم الكامل للمسؤول:</label><input type="text" id="old-name" required placeholder="اسم المسؤول"></div>
+                <div class="form-group" style="margin:0;"><label>اسم المعصرة / الوحدة:</label><input type="text" id="old-mill" required placeholder="اسم المعصرة"></div>
+                <div class="form-group" style="margin:0;"><label>رقم الهاتف النقال:</label><input type="tel" id="old-phone" required placeholder="06XXXXXXXX"></div>
+                <div class="form-group" style="margin:0;"><label>نوع الوحدة:</label><select id="old-type" required><option value="عصرية">عصرية</option><option value="تقليدية">تقليدية</option><option value="تخزين">تخزين</option></select></div>
+                <div class="form-group" style="margin:0;"><label>واجب الانخراط السنوي:</label><select id="old-fee" required><option value="مؤدى">مؤدى (خالص)</option><option value="غير مؤدى">غير مؤدى</option></select></div>
+                <button type="submit" class="submit-btn" style="grid-column: 1 / -1; padding: 10px;">إضافة وتفعيل حساب المنخرط القديم</button>
+            </form>
+        </div>
+
+        <!-- نموذج نشر نشاط جديد للعموم -->
+        <div class="admin-action-box">
+            <h4 style="color: var(--primary-green); margin-bottom: 15px;"><i class="fa-solid fa-bullhorn"></i> نشر نشاط جديد (عناوين، صور، فيديوهات، نصوص)</h4>
+            <form onsubmit="handleAddActivity(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; align-items: end;">
+                <div class="form-group" style="margin:0;"><label>عنوان النشاط:</label><input type="text" id="act-title" required placeholder="العنوان البارز"></div>
+                <div class="form-group" style="margin:0;"><label>التاريخ:</label><input type="date" id="act-date" required></div>
+                <div class="form-group" style="margin:0;"><label>نوع النشاط:</label><select id="act-type" required><option value="منجز">نشاط منجز</option><option value="مستقبلي">نشاط مستقبلي</option></select></div>
+                <div class="form-group" style="margin:0;"><label>رابط الصورة:</label><input type="url" id="act-image" placeholder="https://..."></div>
+                <div class="form-group" style="margin:0;"><label>رابط الفيديو:</label><input type="text" id="act-video" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="form-group" style="margin:0;"><label>رابط إضافي:</label><input type="url" id="act-link" placeholder="https://..."></div>
+                <div class="form-group" style="margin:0; grid-column: 1 / -1;"><label>النصوص والتفاصيل:</label><textarea id="act-desc" rows="2" required placeholder="تفاصيل النشاط..."></textarea></div>
                 <button type="submit" class="submit-btn" style="grid-column: 1 / -1; padding: 10px;">نشر النشاط</button>
             </form>
         </div>
 
-        <!-- جدول إدارة طلبات الانخراط -->
+        <!-- نموذج نشر تكوين حصري -->
+        <div class="admin-action-box" style="border-top-color: var(--accent-gold);">
+            <h4 style="color: var(--primary-green); margin-bottom: 15px;"><i class="fa-solid fa-graduation-cap"></i> نشر برنامج تكوين وتأطير حصري للمنخرطين</h4>
+            <form onsubmit="handleAddTraining(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; align-items: end;">
+                <div class="form-group" style="margin:0;"><label>عنوان التكوين:</label><input type="text" id="tr-title" required placeholder="عنوان الدورة"></div>
+                <div class="form-group" style="margin:0;"><label>تاريخ الدورة:</label><input type="date" id="tr-date" required></div>
+                <div class="form-group" style="margin:0;"><label>المؤطر:</label><input type="text" id="tr-trainer" required placeholder="اسم المؤطر"></div>
+                <div class="form-group" style="margin:0;"><label>الفئة المستهدفة:</label><input type="text" id="tr-target" required placeholder="أرباب المعاصر"></div>
+                <div class="form-group" style="margin:0;"><label>رابط الصورة:</label><input type="url" id="tr-image" placeholder="https://..."></div>
+                <div class="form-group" style="margin:0;"><label>رابط الفيديو:</label><input type="text" id="tr-video" placeholder="https://..."></div>
+                <div class="form-group" style="margin:0; grid-column: 1 / -1;"><label>المحتوى التكويني الحصري:</label><textarea id="tr-content" rows="3" required placeholder="الدروس التقنية الكاملة..."></textarea></div>
+                <button type="submit" class="submit-btn" style="grid-column: 1 / -1; padding: 10px; background-color: var(--accent-gold);">نشر التكوين الحصري</button>
+            </form>
+        </div>
+
+        <!-- جدول تسيير المنخرطين والطلبات -->
         <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto;">
-            <h4 style="margin-bottom: 15px; color: var(--primary-green);"><i class="fa-solid fa-users-gear"></i> إدارة طلبات الانخراط الواردة</h4>
-            <table style="width: 100%; border-collapse: collapse; text-align: right; min-width: 700px;">
+            <h4 style="margin-bottom: 15px; color: var(--primary-green);"><i class="fa-solid fa-users-gear"></i> إدارة المنخرطين (قدامى وجدد) وتسيير الواجبات والحالات</h4>
+            <table style="width: 100%; border-collapse: collapse; text-align: right; min-width: 750px;">
                 <thead>
                     <tr style="background-color: var(--primary-green); color: white;">
-                        <th style="padding: 12px 15px;">المسؤول</th>
-                        <th style="padding: 12px 15px;">المعصرة</th>
-                        <th style="padding: 12px 15px;">الهاتف</th>
-                        <th style="padding: 12px 15px;">النوع</th>
-                        <th style="padding: 12px 15px;">الترخيص الصحي</th>
-                        <th style="padding: 12px 15px;">الحالة</th>
-                        <th style="padding: 12px 15px;">الإجراء (تغيير وحفظ)</th>
+                        <th style="padding: 10px;">المنخرط</th>
+                        <th style="padding: 10px;">المعصرة</th>
+                        <th style="padding: 10px;">الهاتف</th>
+                        <th style="padding: 10px;">النوع والترخيص</th>
+                        <th style="padding: 10px;">واجب الانخراط السنوي</th>
+                        <th style="padding: 10px;">الحالة</th>
+                        <th style="padding: 10px;">الإجراء والواتساب</th>
                     </tr>
                 </thead>
-                <tbody id="admin-requests-table">
-                    <!-- يتم تعبئتها ديناميكياً -->
-                </tbody>
+                <tbody id="admin-requests-table"></tbody>
             </table>
         </div>
     </div>
 
     <footer>
         <div class="footer-content">
-            <div class="footer-logo">
-                <h2>جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</h2>
-                <p>العطاوية، إقليم قلعة السراغنة، المملكة المغربية</p>
-            </div>
-            <div>
-                <p><i class="fa-solid fa-location-dot"></i> العطاوية، قلعة السراغنة</p>
-                <p><i class="fa-solid fa-envelope"></i> contact@namaa-attaouia.ma</p>
-            </div>
+            <div class="footer-logo"><h2>جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</h2><p>العطاوية، قلعة السراغنة، المغرب</p></div>
+            <div><p><i class="fa-solid fa-location-dot"></i> العطاوية</p><p><i class="fa-solid fa-envelope"></i> contact@namaa-attaouia.ma</p></div>
         </div>
-        <div class="footer-bottom">
-            <p>جميع حقوق النشر محفوظة © 2026 - جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</p>
-        </div>
+        <div class="footer-bottom"><p>جميع حقوق النشر محفوظة © 2026 - جمعية نماء العطاوية</p></div>
     </footer>
-
     <script src="main.js"></script>
 </body>
 </html>
