@@ -23,9 +23,11 @@
             <ul class="nav-links" id="nav-links">
                 <li><a href="index.html">الرئيسية</a></li>
                 <li><a href="services.html">الخدمات</a></li>
+                <li><a href="activities.html">أنشطة الجمعية</a></li>
+                <li><a href="training.html">التكوين والتأطير</a></li>
                 <li><a href="membership.html" class="active">طلب الانخراط</a></li>
-                <li><a href="register.html">إنشاء حساب</a></li>
-                <li><a href="admin-login.html" class="admin-nav-btn"><i class="fa-solid fa-lock"></i> إدارة المنصة</a></li>
+                <li><a href="register.html">حساب المنخرط</a></li>
+                <li><a href="admin-login.html" class="admin-nav-btn"><i class="fa-solid fa-lock"></i> الإدارة</a></li>
             </ul>
         </div>
     </header>
@@ -33,33 +35,43 @@
     <div class="container">
         <div class="section-title">
             <h3>طلب الانخراط في الجمعية</h3>
-            <p>املأ الاستمارة أدناه للانضمام رسمياً إلى جمعية نماء العطاوية لأصحاب وحدات إنتاج زيت الزيتون</p>
+            <p>املأ الاستمارة أدناه للانضمام رسمياً لشبكة وحدات إنتاج زيت الزيتون بالعطاوية</p>
         </div>
         <div class="form-box">
             <form onsubmit="handleMembership(event)">
                 <div class="form-group">
-                    <label>الاسم الكامل للمسؤول أو الممثل القانوني:</label>
-                    <input type="text" required placeholder="أدخل الاسم الكامل">
+                    <label>الاسم الكامل للمسؤول القانوني:</label>
+                    <input type="text" id="m-name" required placeholder="أدخل الاسم الكامل">
                 </div>
                 <div class="form-group">
-                    <label>اسم وحدة إنتاج زيت الزيتون (المعصرة):</label>
-                    <input type="text" required placeholder="مثال: معصرة النماء الحديثة">
+                    <label>اسم وحدة الإنتاج (المعصرة):</label>
+                    <input type="text" id="m-mill" required placeholder="مثال: معصرة النماء الحديثة">
                 </div>
                 <div class="form-group">
-                    <label>رقم الهاتف النقال:</label>
-                    <input type="tel" required placeholder="06XXXXXXXX" style="direction: ltr; text-align: right;">
+                    <label>رقم الهاتف النقال (للتواصل عبر واتساب):</label>
+                    <input type="tel" id="m-phone" required placeholder="06XXXXXXXX" style="direction: ltr; text-align: right;">
                 </div>
                 <div class="form-group">
-                    <label>المنطقة / الدوار / العنوان بالعطاوية:</label>
-                    <input type="text" required placeholder="أدخل العنوان بالتفصيل">
+                    <label>العنوان / الدوار / المنطقة بالعطاوية:</label>
+                    <input type="text" id="m-address" required placeholder="أدخل العنوان بالتفصيل">
                 </div>
                 <div class="form-group">
                     <label>نوع وحدة الإنتاج:</label>
-                    <select required>
+                    <select id="m-type" required>
                         <option value="">اختر النوع...</option>
-                        <option value="modern">عصرية (مستمر / نصف مستمر)</option>
-                        <option value="traditional">تقليدية (معصرة تقليدية)</option>
-                        <option value="storage">وحدة تخزين وتعبئة</option>
+                        <option value="عصرية">عصرية (مستمر / نصف مستمر)</option>
+                        <option value="تقليدية">تقليدية (معصرة تقليدية)</option>
+                        <option value="تخزين">وحدة تخزين وتعبئة</option>
+                    </select>
+                </div>
+                <!-- خانة وضعية الترخيص الصحي الجديدة -->
+                <div class="form-group">
+                    <label><i class="fa-solid fa-shield-halved" style="color: var(--accent-gold);"></i> وضعية الترخيص الصحي (ONSSA):</label>
+                    <select id="m-license" required>
+                        <option value="">اختر وضعية الترخيص...</option>
+                        <option value="مرخص">مرخص نهائياً</option>
+                        <option value="غير مرخص">غير مرخص</option>
+                        <option value="في طور الإنجاز">في طور الإنجاز وتسوية الوضعية</option>
                     </select>
                 </div>
                 <button type="submit" class="submit-btn">إرسال طلب الانخراط</button>
