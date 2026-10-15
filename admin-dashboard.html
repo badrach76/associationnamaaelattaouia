@@ -8,9 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script>
-        // التحقق من الصلاحيات فور تحميل الصفحة قبل عرض أي محتوى
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-            alert('عذراً، هذه الصفحة محمية ولا يمكن الوصول إليها إلا بعد تسجيل الدخول الآمن.');
+        if (sessionStorage.getItem('isAdmin') !== 'true') {
+            alert('غير مسموح بالدخول، يرجى تسجيل الدخول من صفحة المشرفين.');
             window.location.href = 'admin-login.html';
         }
     </script>
@@ -27,8 +26,8 @@
                 </div>
             </div>
             <div>
-                <button onclick="adminLogout()" style="background-color: var(--danger-red); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer;">
-                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                <button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='index.html';" style="background: var(--danger-red); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer;">
+                    <i class="fa-solid fa-right-from-bracket"></i> خروج
                 </button>
             </div>
         </div>
@@ -36,59 +35,54 @@
 
     <div class="container">
         <div class="section-title">
-            <h3>إدارة المنصة والمنخرطين</h3>
-            <p>متابعة الوحدات الإنتاجية، الإحصائيات، وتسيير طلبات الانخراط الواردة بكل أمان</p>
+            <h3>إدارة طلبات الانخراط وتسيير الأنشطة</h3>
+            <p>قبول أو رفض أو وضع الطلبات في طور المعالجة وتوليد رسائل الواتساب التلقائية للمنخرطين</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-right: 5px solid var(--accent-gold); text-align: center;">
-                <h4 style="font-size: 2rem; color: var(--primary-green); margin-bottom: 5px;">45</h4>
-                <p style="color: #666; font-weight: 600;">إجمالي الوحدات المنخرطة</p>
-            </div>
-            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-right: 5px solid var(--accent-gold); text-align: center;">
-                <h4 style="font-size: 2rem; color: var(--primary-green); margin-bottom: 5px;">12</h4>
-                <p style="color: #666; font-weight: 600;">طلبات انخراط جديدة</p>
-            </div>
-            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-right: 5px solid var(--accent-gold); text-align: center;">
-                <h4 style="font-size: 2rem; color: var(--primary-green); margin-bottom: 5px;">38</h4>
-                <p style="color: #666; font-weight: 600;">المعاصر العصرية النشطة</p>
-            </div>
+        <!-- قسم إضافة نشاط جديد للعموم -->
+        <div class="form-box" style="margin-bottom: 40px; max-width: 100%;">
+            <h4 style="color: var(--primary-green); margin-bottom: 15px;"><i class="fa-solid fa-plus-circle"></i> نشر نشاط جديد (منجز أو مستقبلي)</h4>
+            <form onsubmit="handleAddActivity(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: end;">
+                <div class="form-group" style="margin:0;">
+                    <label>عنوان النشاط:</label>
+                    <input type="text" id="act-title" required placeholder="عنوان النشاط">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>التاريخ:</label>
+                    <input type="date" id="act-date" required>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>نوع النشاط:</label>
+                    <select id="act-type" required>
+                        <option value="منجز">نشاط منجز</option>
+                        <option value="مستقبلي">نشاط مستقبلي</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0; grid-column: 1 / -1;">
+                    <label>الوصف:</label>
+                    <textarea id="act-desc" rows="2" required placeholder="تفاصيل النشاط..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn" style="grid-column: 1 / -1; padding: 10px;">نشر النشاط</button>
+            </form>
         </div>
 
+        <!-- جدول إدارة طلبات الانخراط -->
         <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto;">
-            <h4 style="margin-bottom: 15px; color: var(--primary-green);">أحدث طلبات الانخراط المسجلة</h4>
-            <table style="width: 100%; border-collapse: collapse; text-align: right; min-width: 600px;">
+            <h4 style="margin-bottom: 15px; color: var(--primary-green);"><i class="fa-solid fa-users-gear"></i> إدارة طلبات الانخراط الواردة</h4>
+            <table style="width: 100%; border-collapse: collapse; text-align: right; min-width: 700px;">
                 <thead>
                     <tr style="background-color: var(--primary-green); color: white;">
                         <th style="padding: 12px 15px;">المسؤول</th>
-                        <th style="padding: 12px 15px;">اسم المعصرة / الوحدة</th>
+                        <th style="padding: 12px 15px;">المعصرة</th>
                         <th style="padding: 12px 15px;">الهاتف</th>
                         <th style="padding: 12px 15px;">النوع</th>
+                        <th style="padding: 12px 15px;">الترخيص الصحي</th>
                         <th style="padding: 12px 15px;">الحالة</th>
+                        <th style="padding: 12px 15px;">الإجراء (تغيير وحفظ)</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 15px;">محمد الراجي</td>
-                        <td style="padding: 12px 15px;">معصرة الفلاح الخيرية</td>
-                        <td style="padding: 12px 15px; direction: ltr;">+212 661 000 000</td>
-                        <td style="padding: 12px 15px;">عصرية</td>
-                        <td style="padding: 12px 15px;"><span style="background: #e8f5e9; color: var(--light-green); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">مقبول</span></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 15px;">بوشعيب بنعمر</td>
-                        <td style="padding: 12px 15px;">وحدة الزيتون المبارك</td>
-                        <td style="padding: 12px 15px; direction: ltr;">+212 662 111 222</td>
-                        <td style="padding: 12px 15px;">تقليدية</td>
-                        <td style="padding: 12px 15px;"><span style="background: #fffde7; color: #f57f17; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">قيد المراجعة</span></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 15px;">حماني العمراني</td>
-                        <td style="padding: 12px 15px;">معصرة العطاوية الكبرى</td>
-                        <td style="padding: 12px 15px; direction: ltr;">+212 670 333 444</td>
-                        <td style="padding: 12px 15px;">عصرية</td>
-                        <td style="padding: 12px 15px;"><span style="background: #e8f5e9; color: var(--light-green); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">مقبول</span></td>
-                    </tr>
+                <tbody id="admin-requests-table">
+                    <!-- يتم تعبئتها ديناميكياً -->
                 </tbody>
             </table>
         </div>
