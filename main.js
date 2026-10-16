@@ -9,10 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('public-activities-grid')) loadPublicActivities();
     if (document.getElementById('public-trainings-grid')) loadPublicTrainings();
     if (document.getElementById('member-trainings-grid')) loadMemberTrainings();
+    if (document.getElementById('public-news-grid')) loadPublicNews();
     if (document.getElementById('user-dashboard-info')) loadUserDashboard();
 });
 
-// 1. طلب انخراط جديد (جديد)
+// طلب انخراط جديد
 async function handleMembership(e) {
     e.preventDefault();
     const name = document.getElementById('m-name').value;
@@ -30,7 +31,7 @@ async function handleMembership(e) {
         username, password
     }]);
 
-    if (error) { alert('حدث خطأ أثناء إرسال الطلب: ' + error.message); } 
+    if (error) { alert('خطأ: ' + error.message); } 
     else {
         alert('تم إرسال طلب انخراطكم بنجاح وهو قيد المعالجة.');
         e.target.reset();
@@ -38,7 +39,7 @@ async function handleMembership(e) {
     }
 }
 
-// 2. تسجيل منخرط قديم من طرف الإدارة
+// تسجيل منخرط قديم مباشرة من لوحة الإدارة
 async function handleAddOldMember(e) {
     e.preventDefault();
     const name = document.getElementById('old-name').value;
@@ -50,23 +51,87 @@ async function handleAddOldMember(e) {
     const password = 'pass' + Math.floor(Math.random() * 9000 + 1000);
 
     const { error } = await supabase.from('members').insert([{
-        name, mill, phone, address: 'العطاوية (قديم)', type, license: 'مرخص',
+        name, mill, phone, address: 'العطاوية (منخرط قديم)', type, license: 'مرخص',
         member_type: 'قديم', annual_fee, status: 'مقبول', username, password
     }]);
 
     if (error) { alert('خطأ: ' + error.message); }
     else {
-        alert('تم تسجيل المنخرط القديم بنجاح.');
+        alert('تم تسجيل المنخرط القديم وتفعيل حسابه بنجاح.');
         e.target.reset();
         loadAdminData();
     }
 }
 
-// تحميل وتسيير بيانات الإدارة (حذف وتعديل المنخرطين، الأنشطة، التكوينات)
+// نشر نشاط جديد مع رفع الملفات مباشرة من الجهاز
+async function handleAddActivity(e) {
+    e.preventDefault();
+    const title = document.getElementById('act-title').value;
+    const date = document.getElementById('act-date').value;
+    const type = document.getElementById('act-type').value;
+    const description = document.getElementById('act-desc').value;
+    const link_url = document.getElementById('act-link').value;
+
+    // رفع الصورة والفيديو مباشرة إن وجدا
+    const imageUrl = await uploadFileToSupabase('act-image-file');
+    const videoUrl = await uploadFileToSupabase('act-video-file');
+
+    const { error } = await supabase.from('activities').insert([{
+        title, date, type, description,
+        image_url: imageUrl || 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80',
+        video_url: videoUrl || '',
+        link_url
+    }]);
+
+    if (error) alert('خطأ في النشر: ' + error.message);
+    else { alert('تم نشر النشاط بنجاح.'); e.target.reset(); loadAdminData(); }
+}
+
+// نشر تكوين حصري جديد مع رفع الملفات
+async function handleAddTraining(e) {
+    e.preventDefault();
+    const title = document.getElementById('tr-title').value;
+    const date = document.getElementById('tr-date').value;
+    const trainer = document.getElementById('tr-trainer').value;
+    const target = document.getElementById('tr-target').value;
+    const content = document.getElementById('tr-content').value;
+
+    const imageUrl = await uploadFileToSupabase('tr-image-file');
+    const videoUrl = await uploadFileToSupabase('tr-video-file');
+
+    const { error } = await supabase.from('trainings').insert([{
+        title, date, trainer, target, content,
+        image_url: imageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
+        video_url: videoUrl || ''
+    }]);
+
+    if (error) alert('خطأ في النشر: ' + error.message);
+    else { alert('تم نشر التكوين الحصري بنجاح.'); e.target.reset(); loadAdminData(); }
+}
+
+// نشر خبر جديد (محلي/وطني/دولي) مع رفع الصورة مباشرة
+async function handleAddNews(e) {
+    e.preventDefault();
+    const title = document.getElementById('news-title').value;
+    const category = document.getElementById('news-category').value;
+    const date = document.getElementById('news-date').value;
+    const content = document.getElementById('news-content').value;
+
+    const imageUrl = await uploadFileToSupabase('news-image-file');
+
+    const { error } = await supabase.from('news').insert([{
+        title, category, date, content,
+        image_url: imageUrl || 'https://images.unsplash.com/photo-1589927986062-0ef777bb1f16?auto=format&fit=crop&w=600&q=80'
+    }]);
+
+    if (error) alert('خطأ في نشر الخبر: ' + error.message);
+    else { alert('تم نشر الخبر بنجاح.'); e.target.reset(); loadAdminData(); }
+}
+
+// تحميل البيانات في لوحة الإدارة (مع دعم الحذف والتعديل)
 async function loadAdminData() {
-    // جلب المنخرطين
-    const { data: members, error } = await supabase.from('members').select('*').order('id', { ascending: false });
-    if (!error && document.getElementById('admin-members-table')) {
+    const { data: members } = await supabase.from('members').select('*').order('id', { ascending: false });
+    if (members && document.getElementById('admin-members-table')) {
         let html = '';
         members.forEach(m => {
             let badgeClass = m.status === 'مقبول' ? 'badge-success' : (m.status === 'مرفوض' ? 'badge-danger' : 'badge-warning');
@@ -93,100 +158,43 @@ async function loadAdminData() {
                         </select>
                         ${waBtn}
                     </td>
-                    <td style="padding:10px;">
-                        <button class="btn-danger" onclick="deleteRecord('members', ${m.id})"><i class="fa-solid fa-trash"></i> حذف</button>
-                    </td>
+                    <td style="padding:10px;"><button class="btn-danger" onclick="deleteRecord('members', ${m.id})">حذف</button></td>
                 </tr>`;
         });
         document.getElementById('admin-members-table').innerHTML = html;
     }
 
-    // جلب الأنشطة للتعديل أو الحذف
+    // الأنشطة
     const { data: acts } = await supabase.from('activities').select('*').order('id', { ascending: false });
     if (acts && document.getElementById('admin-activities-table')) {
         let actHtml = '';
         acts.forEach(a => {
-            actHtml += `
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:10px;">${a.title}</td>
-                    <td style="padding:10px;">${a.date}</td>
-                    <td style="padding:10px;">${a.type}</td>
-                    <td style="padding:10px;">
-                        <button class="btn-danger" onclick="deleteRecord('activities', ${a.id})"><i class="fa-solid fa-trash"></i> حذف</button>
-                    </td>
-                </tr>`;
+            actHtml += `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px;">${a.title}</td><td style="padding:8px;">${a.date}</td><td style="padding:8px;"><button class="btn-danger" onclick="deleteRecord('activities', ${a.id})">حذف</button></td></tr>`;
         });
         document.getElementById('admin-activities-table').innerHTML = actHtml;
     }
 
-    // جلب التكوينات للحذف
+    // التكوينات
     const { data: trs } = await supabase.from('trainings').select('*').order('id', { ascending: false });
     if (trs && document.getElementById('admin-trainings-table')) {
         let trHtml = '';
         trs.forEach(t => {
-            trHtml += `
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:10px;">${t.title}</td>
-                    <td style="padding:10px;">${t.trainer}</td>
-                    <td style="padding:10px;">${t.date}</td>
-                    <td style="padding:10px;">
-                        <button class="btn-danger" onclick="deleteRecord('trainings', ${t.id})"><i class="fa-solid fa-trash"></i> حذف</button>
-                    </td>
-                </tr>`;
+            trHtml += `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px;">${t.title}</td><td style="padding:8px;">${t.trainer}</td><td style="padding:8px;"><button class="btn-danger" onclick="deleteRecord('trainings', ${t.id})">حذف</button></td></tr>`;
         });
         document.getElementById('admin-trainings-table').innerHTML = trHtml;
     }
 }
 
-// دالة عامة لتحديث الحقول في Supabase
 async function updateMemberField(id, field, val) {
-    const { error } = await supabase.from('members').update({ [field]: val }).eq('id', id);
-    if (error) alert('خطأ في التحديث: ' + error.message);
-    else loadAdminData();
+    await supabase.from('members').update({ [field]: val }).eq('id', id);
+    loadAdminData();
 }
 
-// دالة عامة لحذف سجل من أي جدول
 async function deleteRecord(table, id) {
-    if (confirm('هل أنت متأكد من رغبتك في حذف هذا العنصر نهائياً؟')) {
-        const { error } = await supabase.from(table).delete().eq('id', id);
-        if (error) alert('خطأ في الحذف: ' + error.message);
-        else {
-            alert('تم الحذف بنجاح.');
-            loadAdminData();
-        }
+    if (confirm('هل أنت متأكد من الحذف؟')) {
+        await supabase.from(table).delete().eq('id', id);
+        loadAdminData();
     }
-}
-
-// نشر نشاط جديد
-async function handleAddActivity(e) {
-    e.preventDefault();
-    const title = document.getElementById('act-title').value;
-    const date = document.getElementById('act-date').value;
-    const type = document.getElementById('act-type').value;
-    const description = document.getElementById('act-desc').value;
-    const image_url = document.getElementById('act-image').value || 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80';
-    const video_url = document.getElementById('act-video').value;
-    const link_url = document.getElementById('act-link').value;
-
-    const { error } = await supabase.from('activities').insert([{ title, date, type, description, image_url, video_url, link_url }]);
-    if (error) alert('خطأ: ' + error.message);
-    else { alert('تم نشر النشاط بنجاح.'); e.target.reset(); loadAdminData(); }
-}
-
-// نشر تكوين حصري جديد
-async function handleAddTraining(e) {
-    e.preventDefault();
-    const title = document.getElementById('tr-title').value;
-    const date = document.getElementById('tr-date').value;
-    const trainer = document.getElementById('tr-trainer').value;
-    const target = document.getElementById('tr-target').value;
-    const content = document.getElementById('tr-content').value;
-    const image_url = document.getElementById('tr-image').value || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80';
-    const video_url = document.getElementById('tr-video').value;
-
-    const { error } = await supabase.from('trainings').insert([{ title, date, trainer, target, content, image_url, video_url }]);
-    if (error) alert('خطأ: ' + error.message);
-    else { alert('تم نشر التكوين بنجاح.'); e.target.reset(); loadAdminData(); }
 }
 
 // عرض الأنشطة للعموم
@@ -197,8 +205,7 @@ async function loadPublicActivities() {
     let html = '';
     acts.forEach(act => {
         let badgeBg = act.type === 'منجز' ? 'var(--light-green)' : 'var(--accent-gold)';
-        let videoBox = act.video_url ? `<div style="margin-top:10px;"><iframe width="100%" height="200" src="${act.video_url}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>` : '';
-        let linkBox = act.link_url && act.link_url !== '#' ? `<div style="margin-top:10px;"><a href="${act.link_url}" target="_blank" style="color:var(--accent-gold); font-weight:700;"><i class="fa-solid fa-link"></i> رابط تفصيلي</a></div>` : '';
+        let mediaBox = act.video_url ? `<div style="margin-top:10px;"><video width="100%" controls style="border-radius:8px;"><source src="${act.video_url}" type="video/mp4"></video></div>` : '';
 
         html += `
             <div style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); overflow:hidden; border-top:4px solid var(--primary-green);">
@@ -208,14 +215,34 @@ async function loadPublicActivities() {
                     <h4 style="color:var(--primary-green); margin:12px 0 8px; font-size:1.2rem;">${act.title}</h4>
                     <p style="font-size:0.85rem; color:#777; margin-bottom:10px;"><i class="fa-solid fa-calendar"></i> ${act.date}</p>
                     <p style="color:#555; font-size:0.95rem; margin-bottom:10px;">${act.description}</p>
-                    ${videoBox} ${linkBox}
+                    ${mediaBox}
                 </div>
             </div>`;
     });
     grid.innerHTML = html;
 }
 
-// عرض التكوينات العامة
+// عرض الأخبار والمستجدات (محلية، وطنية، دولية)
+async function loadPublicNews() {
+    const grid = document.getElementById('public-news-grid');
+    const { data: newsList } = await supabase.from('news').select('*').order('id', { ascending: false });
+    if (!newsList) return;
+    let html = '';
+    newsList.forEach(news => {
+        html += `
+            <div style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); overflow:hidden; border-top:4px solid var(--accent-gold);">
+                <img src="${news.image_url}" alt="${news.title}" style="width:100%; height:180px; object-fit:cover;">
+                <div style="padding:20px;">
+                    <span style="background:var(--primary-green); color:white; padding:3px 10px; border-radius:15px; font-size:0.75rem; font-weight:700;">${news.category}</span>
+                    <h4 style="color:var(--primary-green); margin:12px 0 8px; font-size:1.1rem;">${news.title}</h4>
+                    <p style="font-size:0.8rem; color:#777; margin-bottom:10px;"><i class="fa-solid fa-clock"></i> ${news.date}</p>
+                    <p style="color:#555; font-size:0.9rem;">${news.content}</p>
+                </div>
+            </div>`;
+    });
+    grid.innerHTML = html;
+}
+
 async function loadPublicTrainings() {
     const grid = document.getElementById('public-trainings-grid');
     const { data: trs } = await supabase.from('trainings').select('*').order('id', { ascending: false });
@@ -224,41 +251,39 @@ async function loadPublicTrainings() {
     trs.forEach(tr => {
         html += `
             <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border-top:4px solid var(--accent-gold);">
-                <h4 style="color:var(--primary-green); margin-bottom:10px;"><i class="fa-solid fa-graduation-cap" style="color:var(--accent-gold);"></i> ${tr.title}</h4>
+                <h4 style="color:var(--primary-green); margin-bottom:10px;"><i class="fa-solid fa-graduation-cap"></i> ${tr.title}</h4>
                 <p style="font-size:0.9rem; color:#555; margin-bottom:8px;"><strong>المؤطر:</strong> ${tr.trainer}</p>
-                <p style="font-size:0.9rem; color:#555; margin-bottom:8px;"><strong>الفئة:</strong> ${tr.target}</p>
                 <p style="font-size:0.85rem; color:#777; margin-bottom:15px;"><i class="fa-solid fa-clock"></i> ${tr.date}</p>
                 <div style="background:var(--light-gold); padding:10px; border-radius:8px; font-size:0.85rem; text-align:center; color:var(--primary-green);">
-                    <i class="fa-solid fa-lock"></i> المحتوى الحصري متاح للمنخرطين عبر <a href="register.html" style="color:var(--primary-green); font-weight:bold;">فضاء المنخرط</a>
+                    <i class="fa-solid fa-lock"></i> المحتوى الحصري متاح للمنخرطين عبر <a href="register.html" style="font-weight:bold;">فضاء المنخرط</a>
                 </div>
             </div>`;
     });
     grid.innerHTML = html;
 }
 
-// عرض التكوينات الحصرية للمنخرط
 async function loadMemberTrainings() {
     const grid = document.getElementById('member-trainings-grid');
     const { data: trs } = await supabase.from('trainings').select('*').order('id', { ascending: false });
     if (!trs) return;
     let html = '';
     trs.forEach(tr => {
-        let videoBox = tr.video_url ? `<div style="margin-top:15px;"><iframe width="100%" height="220" src="${tr.video_url}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>` : '';
+        let mediaBox = tr.video_url ? `<div style="margin-top:15px;"><video width="100%" controls style="border-radius:8px;"><source src="${tr.video_url}" type="video/mp4"></video></div>` : '';
         let imgBox = tr.image_url ? `<img src="${tr.image_url}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : '';
 
         html += `
             <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); border-top:4px solid var(--light-green);">
                 ${imgBox}
                 <h4 style="color:var(--primary-green); margin-bottom:10px;">${tr.title}</h4>
-                <p style="font-size:0.85rem; color:#777; margin-bottom:8px;"><i class="fa-solid fa-user-tie"></i> المؤطر: ${tr.trainer} | ${tr.date}</p>
+                <p style="font-size:0.85rem; color:#777; margin-bottom:8px;">المؤطر: ${tr.trainer} | ${tr.date}</p>
                 <p style="color:#444; font-size:0.95rem; margin-bottom:15px; background:var(--bg-light); padding:12px; border-radius:8px;">${tr.content}</p>
-                ${videoBox}
+                ${mediaBox}
             </div>`;
     });
     grid.innerHTML = html;
 }
 
-// تسجيل دخول المشرف والمنخرط
+// المصادقة
 function handleAdminLogin(e) {
     e.preventDefault();
     if (document.getElementById('admin-user').value === 'admin_namaa' && document.getElementById('admin-pass').value === 'Olive2026@Attaouia') {
@@ -272,8 +297,8 @@ async function handleUserLogin(e) {
     const u = document.getElementById('user-username').value;
     const p = document.getElementById('user-pass').value;
 
-    const { data: members, error } = await supabase.from('members').select('*').eq('username', u).eq('password', p).eq('status', 'مقبول');
-    if (!error && members && members.length > 0) {
+    const { data: members } = await supabase.from('members').select('*').eq('username', u).eq('password', p).eq('status', 'مقبول');
+    if (members && members.length > 0) {
         sessionStorage.setItem('currentMember', JSON.stringify(members[0]));
         window.location.href = 'user-dashboard.html';
     } else { alert('بيانات الدخول غير صحيحة أو الطلب لم يُقبل بعد.'); }
@@ -296,19 +321,17 @@ async function loadUserDashboard() {
             '<span class="badge badge-danger">غير مؤدى</span>';
     }
 
-    // جلب استفسارات المنخرط
     const { data: inquiries } = await supabase.from('inquiries').select('*').eq('member_phone', member.phone);
     const chatContainer = document.getElementById('member-inquiries-box');
     if (chatContainer && inquiries) {
         let msgHtml = inquiries.length === 0 ? '<p style="color:#777; font-size:0.9rem;">لا توجد استفسارات سابقة.</p>' : '';
         inquiries.forEach(m => {
-            msgHtml += `<div style="background:white; padding:8px 12px; border-radius:6px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05);"><small style="color:#999; display:block;">${new Date(m.created_at).toLocaleDateString()}</small>${m.message}</div>`;
+            msgHtml += `<div style="background:white; padding:8px 12px; border-radius:6px; margin-bottom:8px;"><small style="color:#999; display:block;">${new Date(m.created_at).toLocaleDateString()}</small>${m.message}</div>`;
         });
         chatContainer.innerHTML = msgHtml;
     }
 }
 
-// إرسال استفسار للإدارة
 async function handleMemberInquiry(e) {
     e.preventDefault();
     const member = JSON.parse(sessionStorage.getItem('currentMember'));
