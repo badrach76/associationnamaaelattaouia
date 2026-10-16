@@ -11,10 +11,9 @@
 <body>
     <div class="market-ticker">
         <div class="ticker-content">
-            <span>🫒 أسعار السوق الوطنية والدولية:</span>
-            <span>زيت الزيتون الممتاز (العطاوية): 75 - 85 درهم للتر</span> | 
-            <span>إقليم قلعة السراغنة: معدل العصر 18%</span> | 
-            <span>السوق الدولية (إسبانيا/إيطاليا): استقرار نسبي في الأسعار</span>
+            <span>🫒 مستجدات قطاع زيت الزيتون</span>
+            <span>تابع الأخبار والقوانين والبلاغات المهنية المنشورة من إدارة الجمعية</span>
+            <span>يرجى التحقق من مصدر وتاريخ أي معلومة متعلقة بالأسعار قبل اعتمادها</span>
         </div>
     </div>
 
@@ -44,7 +43,25 @@
             <p>تابع آخر المستجدات والأنشطة الموازية والتقارير الاقتصادية لقطاع زيت الزيتون</p>
         </div>
 
-        <div id="public-news-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+        <div class="news-tools" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:25px;">
+            <div class="form-group" style="margin:0;">
+                <label for="news-search">البحث في الأخبار</label>
+                <input id="news-search" type="search" placeholder="ابحث بعنوان الخبر أو محتواه..." style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;">
+            </div>
+            <div class="form-group" style="margin:0;">
+                <label for="news-filter">تصفية حسب التصنيف</label>
+                <select id="news-filter" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;">
+                    <option value="">جميع التصنيفات</option>
+                    <option value="أخبار الجمعية">أخبار الجمعية</option>
+                    <option value="القوانين والتراخيص">القوانين والتراخيص</option>
+                    <option value="أخبار القطاع">أخبار القطاع</option>
+                    <option value="الأسعار والأسواق">الأسعار والأسواق</option>
+                    <option value="بلاغات ومذكرات">بلاغات ومذكرات</option>
+                    <option value="أخبار دولية">أخبار دولية</option>
+                </select>
+            </div>
+        </div>
+        <div id="public-news-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px;">
             <!-- يتم تعبئتها ديناميكياً من لوحة الإدارة -->
         </div>
     </div>

@@ -112,20 +112,62 @@ async function handleAddTraining(e) {
 // نشر خبر جديد (محلي/وطني/دولي) مع رفع الصورة مباشرة
 async function handleAddNews(e) {
     e.preventDefault();
-    const title = document.getElementById('news-title').value;
+    const id = document.getElementById('news-id').value;
+    const title = document.getElementById('news-title').value.trim();
     const category = document.getElementById('news-category').value;
     const date = document.getElementById('news-date').value;
-    const content = document.getElementById('news-content').value;
+    const content = document.getElementById('news-content').value.trim();
 
-    const imageUrl = await uploadFileToSupabase('news-image-file');
+    let imageUrl = null;
+    const imageInput = document.getElementById('news-image-file');
+    if (imageInput && imageInput.files && imageInput.files.length) {
+        imageUrl = await uploadFileToSupabase('news-image-file');
+        if (!imageUrl) return;
+    }
 
-    const { error } = await supabase.from('news').insert([{
-        title, category, date, content,
-        image_url: imageUrl || 'https://images.unsplash.com/photo-1589927986062-0ef777bb1f16?auto=format&fit=crop&w=600&q=80'
-    }]);
+    const record = { title, category, date, content };
+    if (imageUrl) record.image_url = imageUrl;
+    else if (!id) record.image_url = '';
 
-    if (error) alert('خطأ في نشر الخبر: ' + error.message);
-    else { alert('تم نشر الخبر بنجاح.'); e.target.reset(); loadAdminData(); }
+    let result;
+    if (id) {
+        result = await supabase.from('news').update(record).eq('id', id);
+    } else {
+        result = await supabase.from('news').insert([record]);
+    }
+
+    if (result.error) {
+        alert('تعذر حفظ الخبر: ' + result.error.message + '\\nتحقق من إعدادات Supabase وصلاحيات جدول news.');
+        return;
+    }
+    alert(id ? 'تم تحديث الخبر بنجاح.' : 'تم نشر الخبر بنجاح.');
+    resetNewsForm();
+    await loadAdminData();
+    if (document.getElementById('public-news-grid')) await loadPublicNews();
+}
+
+function editNews(id, title, category, date, content) {
+    document.getElementById('news-id').value = id;
+    document.getElementById('news-title').value = title;
+    document.getElementById('news-category').value = category;
+    document.getElementById('news-date').value = date;
+    document.getElementById('news-content').value = content;
+    document.getElementById('news-submit-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات';
+    document.getElementById('news-admin-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetNewsForm() {
+    const form = document.getElementById('news-admin-form');
+    if (!form) return;
+    form.reset();
+    document.getElementById('news-id').value = '';
+    document.getElementById('news-submit-btn').innerHTML = '<i class="fa-solid fa-paper-plane"></i> نشر الخبر';
+}
+
+function escapeNewsHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
 }
 
 // تحميل البيانات في لوحة الإدارة (مع دعم الحذف والتعديل)
@@ -174,6 +216,31 @@ async function loadAdminData() {
         document.getElementById('admin-activities-table').innerHTML = actHtml;
     }
 
+    // أخبار الجمعية والقطاع
+    const { data: newsRows, error: newsError } = await supabase.from('news').select('*').order('id', { ascending: false });
+    const newsTable = document.getElementById('admin-news-table');
+    if (newsTable) {
+        if (newsError) {
+            newsTable.innerHTML = `<tr><td colspan="4" style="padding:12px;color:#b00020;">تعذر تحميل الأخبار: ${escapeNewsHtml(newsError.message)}</td></tr>`;
+        } else if (!newsRows || !newsRows.length) {
+            newsTable.innerHTML = '<tr><td colspan="4" style="padding:12px;text-align:center;">لا توجد أخبار منشورة بعد.</td></tr>';
+        } else {
+            newsTable.innerHTML = newsRows.map(n => {
+                const args = [n.id, n.title || '', n.category || 'أخبار القطاع', n.date || '', n.content || '']
+                    .map(v => JSON.stringify(String(v)).replace(/</g, '\\u003c')).join(',');
+                return `<tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px;">${escapeNewsHtml(n.title)}</td>
+                    <td style="padding:8px;">${escapeNewsHtml(n.category)}</td>
+                    <td style="padding:8px;">${escapeNewsHtml(n.date)}</td>
+                    <td style="padding:8px;white-space:nowrap;">
+                        <button class="btn-edit" onclick='editNews(${args})'>تعديل</button>
+                        <button class="btn-danger" onclick="deleteRecord('news', ${Number(n.id)})">حذف</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+    }
+
     // التكوينات
     const { data: trs } = await supabase.from('trainings').select('*').order('id', { ascending: false });
     if (trs && document.getElementById('admin-trainings-table')) {
@@ -192,8 +259,10 @@ async function updateMemberField(id, field, val) {
 
 async function deleteRecord(table, id) {
     if (confirm('هل أنت متأكد من الحذف؟')) {
-        await supabase.from(table).delete().eq('id', id);
-        loadAdminData();
+        const { error } = await supabase.from(table).delete().eq('id', id);
+        if (error) { alert('تعذر الحذف: ' + error.message); return; }
+        await loadAdminData();
+        if (table === 'news' && document.getElementById('public-news-grid')) await loadPublicNews();
     }
 }
 
@@ -225,22 +294,51 @@ async function loadPublicActivities() {
 // عرض الأخبار والمستجدات (محلية، وطنية، دولية)
 async function loadPublicNews() {
     const grid = document.getElementById('public-news-grid');
-    const { data: newsList } = await supabase.from('news').select('*').order('id', { ascending: false });
-    if (!newsList) return;
-    let html = '';
-    newsList.forEach(news => {
-        html += `
-            <div style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); overflow:hidden; border-top:4px solid var(--accent-gold);">
-                <img src="${news.image_url}" alt="${news.title}" style="width:100%; height:180px; object-fit:cover;">
+    if (!grid) return;
+    grid.innerHTML = '<p style="text-align:center;grid-column:1/-1;">جارٍ تحميل الأخبار...</p>';
+    const { data: newsList, error } = await supabase.from('news').select('*').order('date', { ascending: false }).order('id', { ascending: false });
+    if (error) {
+        grid.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#b00020;">تعذر تحميل الأخبار حاليًا. يرجى المحاولة لاحقًا.</p>';
+        console.error('Supabase news error:', error);
+        return;
+    }
+    if (!newsList || !newsList.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;background:#fff;padding:35px;border-radius:12px;"><i class="fa-regular fa-newspaper" style="font-size:2rem;color:var(--accent-gold);"></i><h4 style="margin:12px 0;color:var(--primary-green);">لا توجد أخبار منشورة حاليًا</h4><p style="color:#666;">ستظهر هنا مستجدات الجمعية والقطاع فور نشرها من طرف الإدارة.</p></div>';
+        return;
+    }
+    const categoryFilter = document.getElementById('news-filter');
+    const searchInput = document.getElementById('news-search');
+    const render = () => {
+        const selected = categoryFilter ? categoryFilter.value : '';
+        const query = searchInput ? searchInput.value.trim().toLocaleLowerCase() : '';
+        const filtered = newsList.filter(n =>
+            (!selected || n.category === selected) &&
+            (!query || `${n.title || ''} ${n.content || ''} ${n.category || ''}`.toLocaleLowerCase().includes(query))
+        );
+        if (!filtered.length) {
+            grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:25px;">لا توجد نتائج مطابقة للبحث.</p>';
+            return;
+        }
+        grid.innerHTML = filtered.map(news => {
+            const title = escapeNewsHtml(news.title || 'خبر');
+            const category = escapeNewsHtml(news.category || 'أخبار القطاع');
+            const date = escapeNewsHtml(news.date || '');
+            const content = escapeNewsHtml(news.content || '').replace(/\\n/g, '<br>');
+            const image = news.image_url ? `<img src="${escapeNewsHtml(news.image_url)}" alt="${title}" loading="lazy" style="width:100%;height:190px;object-fit:cover;">` : '';
+            return `<article style="background:white;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;border-top:4px solid var(--accent-gold);">
+                ${image}
                 <div style="padding:20px;">
-                    <span style="background:var(--primary-green); color:white; padding:3px 10px; border-radius:15px; font-size:0.75rem; font-weight:700;">${news.category}</span>
-                    <h4 style="color:var(--primary-green); margin:12px 0 8px; font-size:1.1rem;">${news.title}</h4>
-                    <p style="font-size:0.8rem; color:#777; margin-bottom:10px;"><i class="fa-solid fa-clock"></i> ${news.date}</p>
-                    <p style="color:#555; font-size:0.9rem;">${news.content}</p>
+                    <span style="background:var(--primary-green);color:white;padding:3px 10px;border-radius:15px;font-size:.75rem;font-weight:700;">${category}</span>
+                    <h4 style="color:var(--primary-green);margin:12px 0 8px;font-size:1.15rem;">${title}</h4>
+                    <p style="font-size:.8rem;color:#777;margin-bottom:12px;"><i class="fa-solid fa-calendar-days"></i> ${date}</p>
+                    <p style="color:#555;font-size:.95rem;white-space:normal;overflow-wrap:anywhere;">${content}</p>
                 </div>
-            </div>`;
-    });
-    grid.innerHTML = html;
+            </article>`;
+        }).join('');
+    };
+    if (categoryFilter) categoryFilter.onchange = render;
+    if (searchInput) searchInput.oninput = render;
+    render();
 }
 
 async function loadPublicTrainings() {
